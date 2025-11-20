@@ -1,0 +1,84 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}Поиск новостей{% endblock %}
+
+{% block content %}
+<h1>Поиск новостей</h1>
+
+<form method="GET" style="margin-bottom: 2rem; padding: 1.5rem; background-color: #f8f9fa; border-radius: 5px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Название:</label>
+            {{ filterset.form.title }}
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Автор:</label>
+            {{ filterset.form.author__user__username }}
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Позже даты:</label>
+            {{ filterset.form.created_after }}
+        </div>
+    </div>
+    <button type="submit" style="background: #3498db; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 3px; cursor: pointer;">Найти</button>
+    <a href="{% url 'news_search' %}" style="margin-left: 1rem; color: #7f8c8d;">Сбросить</a>
+</form>
+
+{% if news_list %}
+    <p><strong>Найдено новостей: {{ paginator.count }}</strong></p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #34495e; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Заголовок</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 120px;">Дата</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Текст</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 100px;">Автор</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for news in news_list %}
+            <tr style="background-color: {% if forloop.counter|divisibleby:2 %}#f8f9fa{% else %}white{% endif %};">
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                    <a href="{% url 'news_detail' news.id %}" style="text-decoration: none; color: #2c3e50; font-weight: bold;">
+                        {{ news.title|censor }}
+                    </a>
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
+                    {{ news.created_at|date:"d.m.Y" }}
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                    {{ news.content|truncatewords:20|censor }}
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
+                    {{ news.author.user.username }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# Пагинация #}
+    <div style="margin-top: 2rem; text-align: center;">
+        {% if page_obj.has_previous %}
+            <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" style="margin-right: 1rem; color: #3498db;">« Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" style="margin-right: 1rem; color: #3498db;">‹ Предыдущая</a>
+        {% endif %}
+
+        <span style="margin: 0 1rem;">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" style="margin-left: 1rem; color: #3498db;">Следующая ›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" style="margin-left: 1rem; color: #3498db;">Последняя »</a>
+        {% endif %}
+    </div>
+
+{% else %}
+    <div style="text-align: center; padding: 2rem; background-color: #f8f9fa; border-radius: 5px; margin-top: 1rem;">
+        <p>{% if request.GET %}По вашему запросу ничего не найдено.{% else %}Введите критерии поиска.{% endif %}</p>
+    </div>
+{% endif %}
+{% endblock %}

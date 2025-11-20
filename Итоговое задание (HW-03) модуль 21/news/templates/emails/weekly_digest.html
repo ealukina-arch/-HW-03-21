@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .post-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .post-title {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .meta {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #95a5a6;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+        .unsubscribe {
+            font-size: 11px;
+            color: #bdc3c7;
+            margin-top: 15px;
+        }
+        .stats {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 News Portal</h1>
+            <p>Еженедельный дайджест новых статей</p>
+        </div>
+
+        <div class="content">
+            <h2>Здравствуйте, {{ username }}!</h2>
+
+            <div class="stats">
+                <p>За период с <strong>{{ week_start }}</strong> по <strong>{{ week_end }}</strong><br>
+                в категории <strong>«{{ category_name }}»</strong> появилось <strong>{{ new_posts|length }}</strong> новых статей:</p>
+            </div>
+
+            {% for post in new_posts %}
+            <div class="post-card">
+                <h3 class="post-title">{{ post.title }}</h3>
+                <div class="meta">
+                    📝 Автор: {{ post.author.user.username }} |
+                    📅 {{ post.created_at|date:"d.m.Y H:i" }}
+                </div>
+                <div class="post-content">
+                    {{ post.preview }}
+                </div>
+                <p>
+                    <a href="{{ site_url }}/news/{{ post.id }}/" class="button">📖 Читать статью</a>
+                </p>
+            </div>
+            {% endfor %}
+
+            <div class="unsubscribe">
+                <p>
+                    Если вы не хотите получать еженедельные дайджесты из этой категории,
+                    вы можете <a href="{{ unsubscribe_url }}">отписаться</a>.
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Это автоматическое сообщение. Пожалуйста, не отвечайте на него.</p>
+            <p>&copy; 2024 News Portal. Все права защищены.</p>
+        </div>
+    </div>
+</body>
+</html>

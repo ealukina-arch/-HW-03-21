@@ -1,0 +1,51 @@
+{% extends 'default.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">
+                        {% if status == 'success' %}
+                            ✅ Активация успешна
+                        {% elif status == 'expired' %}
+                            ⏰ Ссылка устарела
+                        {% elif status == 'already_activated' %}
+                            ℹ️ Аккаунт уже активирован
+                        {% else %}
+                            ❌ Ошибка активации
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body text-center">
+                    <p>{{ message }}</p>
+
+                    {% if status == 'success' %}
+                        <div class="alert alert-success">
+                            <h4>Добро пожаловать, {{ username }}!</h4>
+                            <p>Теперь вы можете войти в систему и начать пользоваться всеми возможностями News Portal.</p>
+                        </div>
+                        <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg">Войти в аккаунт</a>
+                    {% elif status == 'expired' %}
+                        <div class="alert alert-warning">
+                            <p>Ссылка активации действительна только 7 дней.</p>
+                        </div>
+                        <a href="{% url 'resend_activation' %}" class="btn btn-warning">Отправить новую ссылку</a>
+                    {% elif status == 'already_activated' %}
+                        <a href="{% url 'account_login' %}" class="btn btn-primary">Войти в аккаунт</a>
+                    {% else %}
+                        <a href="{% url 'resend_activation' %}" class="btn btn-warning">Отправить новую ссылку</a>
+                    {% endif %}
+
+                    <hr>
+                    <p class="text-muted">
+                        Если у вас возникли проблемы, свяжитесь с
+                        <a href="mailto:support@newshub.com">службой поддержки</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #007bff; color: white; padding: 20px; text-align: center; }
+        .content { background: #f9f9f9; padding: 20px; }
+        .post-title { color: #007bff; font-size: 20px; margin-bottom: 10px; }
+        .post-preview { background: white; padding: 15px; border-left: 4px solid #007bff; margin: 15px 0; }
+        .button { display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>News Portal</h1>
+            <p>Уведомление о новой новости</p>
+        </div>
+
+        <div class="content">
+            <h2>Здравствуйте, {{ subscriber.username }}!</h2>
+
+            <p>В категории <strong>"{{ category.name }}"</strong>, на которую вы подписаны,
+            появилась новая новость:</p>
+
+            <div class="post-preview">
+                <h3 class="post-title">{{ post.title }}</h3>
+                <p><strong>Автор:</strong> {{ post.author.user.username }}</p>
+                <p><strong>Дата публикации:</strong> {{ post.created_at|date:"d.m.Y H:i" }}</p>
+
+                <div class="post-content">
+                    {{ post.content|truncatewords:50 }}
+                </div>
+            </div>
+
+            <p style="text-align: center;">
+                <a href="{{ post_url }}" class="button">Читать полностью</a>
+            </p>
+
+            <p>Если вы не хотите получать уведомления о новых новостях в этой категории,
+            вы можете <a href="{{ site_url }}/news/category/{{ category.id }}/unsubscribe/">отписаться</a>.</p>
+        </div>
+
+        <div class="footer">
+            <p>Это автоматическое сообщение. Пожалуйста, не отвечайте на него.</p>
+            <p>&copy; 2024 News Portal. Все права защищены.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{% extends 'default.html' %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 0 auto;">
+    <h1 style="text-align: center; margin-bottom: 2rem;">Вход в систему</h1>
+
+    {% if form.errors %}
+    <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+        Неверное имя пользователя или пароль. Попробуйте снова.
+    </div>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+        <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            У вашей учетной записи нет доступа к этой странице.
+        </div>
+        {% else %}
+        <div style="background: #d1ecf1; color: #0c5460; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            Пожалуйста, войдите в систему чтобы увидеть эту страницу.
+        </div>
+        {% endif %}
+    {% endif %}
+
+    <form method="post" style="background: white; padding: 2rem; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Имя пользователя:</label>
+            <input type="text" name="username" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;" required>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Пароль:</label>
+            <input type="password" name="password" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 3px;" required>
+        </div>
+
+        <button type="submit" style="width: 100%; background: #3498db; color: white; padding: 0.7rem; border: none; border-radius: 3px; cursor: pointer; font-size: 1rem;">
+            Войти
+        </button>
+
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+
+    <div style="text-align: center; margin-top: 1rem;">
+        <p><a href="{% url 'news_list' %}" style="color: #7f8c8d;">Вернуться на главную</a></p>
+    </div>
+</div>
+{% endblock %}

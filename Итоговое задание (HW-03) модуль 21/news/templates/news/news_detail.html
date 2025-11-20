@@ -1,0 +1,39 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ news.title|censor }}{% endblock %}
+
+{% block content %}
+<article style="max-width: 800px; margin: 0 auto;">
+    <h1 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 0.5rem;">
+        {{ news.title|censor }}
+    </h1>
+
+    <div style="color: #666; margin-bottom: 2rem; padding: 1rem; background-color: #f8f9fa; border-radius: 5px;">
+        <p><strong>📅 Дата публикации:</strong> {{ news.created_at|date:"d.m.Y" }}</p>
+        <p><strong>👤 Автор:</strong> {{ news.author.user.username }}</p>
+        <p><strong>★ Рейтинг:</strong> {{ news.rating }}</p>
+
+        {% if news.categories.all %}
+            <p><strong>🏷️ Категории:</strong>
+                {% for category in news.categories.all %}
+                    <span style="background: #ecf0f1; padding: 0.2rem 0.5rem; border-radius: 3px; margin-right: 0.5rem;">
+                        {{ category.name }}
+                    </span>
+                {% endfor %}
+            </p>
+        {% endif %}
+    </div>
+
+    <div style="line-height: 1.8; font-size: 1.1rem; margin-bottom: 2rem; padding: 1.5rem; background-color: white; border-radius: 5px; border: 1px solid #e9ecef;">
+        <h3 style="color: #2c3e50; margin-top: 0;">Текст новости:</h3>
+        {{ news.content|linebreaks|censor }}
+    </div>
+
+    <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <a href="{% url 'news_list' %}" style="display: inline-block; background: #7f8c8d; color: white; padding: 0.7rem 1.5rem; text-decoration: none; border-radius: 3px;">
+            ← Вернуться к списку новостей
+        </a>
+    </div>
+</article>
+{% endblock %}

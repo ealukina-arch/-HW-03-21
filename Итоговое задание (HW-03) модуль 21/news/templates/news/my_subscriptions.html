@@ -1,0 +1,38 @@
+{% extends 'default.html' %}
+
+{% block title %}Мои подписки{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>📧 Мои подписки</h1>
+
+    {% if subscriptions %}
+        <div style="margin-top: 2rem;">
+            {% for subscription in subscriptions %}
+            <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0 0 0.5rem 0;">{{ subscription.category.name }}</h3>
+                    <small style="color: #7f8c8d;">Подписаны с: {{ subscription.subscribed_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <div>
+                    <a href="{% url 'category_posts' subscription.category.id %}" style="background: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none; margin-right: 0.5rem;">
+                        Перейти
+                    </a>
+                    <a href="{% url 'unsubscribe' subscription.category.id %}" style="background: #e74c3c; color: white; padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none;">
+                        Отписаться
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 5px; margin-top: 2rem;">
+            <h3 style="color: #7f8c8d;">У вас пока нет подписок</h3>
+            <p>Перейдите в интересующую вас категорию и нажмите кнопку "Подписаться", чтобы получать уведомления о новых публикациях.</p>
+            <a href="{% url 'news_list' %}" style="background: #3498db; color: white; padding: 0.5rem 1rem; border-radius: 3px; text-decoration: none;">
+                Перейти к новостям
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

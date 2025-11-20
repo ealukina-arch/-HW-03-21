@@ -1,0 +1,73 @@
+{% extends 'default.html' %}
+{% load custom_filters %}
+
+{% block title %}Все новости{% endblock %}
+
+{% block content %}
+<h1>Последние новости</h1>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <p><strong>Всего новостей: {{ paginator.count }}</strong></p>
+    <div>
+        <a href="{% url 'news_search' %}" style="margin-right: 1rem; color: #3498db;">Поиск</a>
+        <a href="{% url 'news_create' %}" style="background: #27ae60; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 3px;">Добавить новость</a>
+    </div>
+</div>
+
+{% if news_list %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: #34495e; color: white;">
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Заголовок</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 120px;">Дата</th>
+                <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Текст</th>
+                <th style="padding: 12px; text-align: center; border: 1px solid #ddd; width: 150px;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for news in news_list %}
+            <tr style="background-color: {% if forloop.counter|divisibleby:2 %}#f8f9fa{% else %}white{% endif %};">
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                    <a href="{% url 'news_detail' news.id %}" style="text-decoration: none; color: #2c3e50; font-weight: bold;">
+                        {{ news.title|censor }}
+                    </a>
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
+                    {{ news.created_at|date:"d.m.Y" }}
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd;">
+                    {{ news.content|truncatewords:20|censor }}
+                </td>
+                <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
+                    <a href="{% url 'news_edit' news.id %}" style="color: #f39c12; margin-right: 0.5rem;">✏️</a>
+                    <a href="{% url 'news_delete' news.id %}" style="color: #e74c3c;">🗑️</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# Пагинация #}
+    <div style="margin-top: 2rem; text-align: center;">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" style="margin-right: 1rem; color: #3498db;">« Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 1rem; color: #3498db;">‹ Предыдущая</a>
+        {% endif %}
+
+        <span style="margin: 0 1rem;">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" style="margin-left: 1rem; color: #3498db;">Следующая ›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" style="margin-left: 1rem; color: #3498db;">Последняя »</a>
+        {% endif %}
+    </div>
+
+{% else %}
+    <div style="text-align: center; padding: 2rem; background-color: #f8f9fa; border-radius: 5px; margin-top: 1rem;">
+        <p>Новостей пока нет.</p>
+        <p><a href="{% url 'news_create' %}" style="color: #3498db;">Добавить первую новость</a></p>
+    </div>
+{% endif %}
+{% endblock %}

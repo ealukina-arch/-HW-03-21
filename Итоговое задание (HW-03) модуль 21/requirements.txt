@@ -1,0 +1,6 @@
+Django>=5.2,<6.0
+django-filter>=23.0,<24.0
+django-allauth>=63.0,<64.0
+requestspython manage.py makemigrations>=2.31.0,<3.0.0
+pyjwt>=2.8.0,<3.0.0
+cryptography>=41.0.0,<42.0.0

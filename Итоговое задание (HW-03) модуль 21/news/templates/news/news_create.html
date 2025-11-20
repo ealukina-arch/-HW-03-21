@@ -1,0 +1,411 @@
+{% extends 'default.html' %}
+
+{% block title %}
+    {% if title %}{{ title }}{% else %}Создание новости{% endif %} | News Portal
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Хлебные крошки -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'news_list' %}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'news_list' %}">Новости</a></li>
+                    <li class="breadcrumb-item active">Создание новости</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Карточка создания новости -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h4 mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            {% if title %}{{ title }}{% else %}Создание новости{% endif %}
+                        </h1>
+                        <span class="badge bg-light text-dark">
+                            <i class="fas fa-newspaper me-1"></i>
+                            Новость
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Информация о лимите новостей -->
+                    {% if news_count_today is not None %}
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="fas fa-info-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Лимит публикаций</h5>
+                            <p class="mb-1">
+                                <strong>Сегодня опубликовано:</strong>
+                                <span class="badge {% if news_count_today >= 3 %}bg-danger{% else %}bg-primary{% endif %}">
+                                    {{ news_count_today }}/3
+                                </span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Осталось доступно:</strong>
+                                <span class="badge bg-success">{{ news_remaining }}</span> новостей
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Сообщения -->
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <i class="fas
+                                {% if message.tags == 'success' %}fa-check-circle
+                                {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                                {% elif message.tags == 'error' %}fa-times-circle
+                                {% else %}fa-info-circle{% endif %} me-2">
+                            </i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Форма создания новости -->
+                    <form method="post" id="newsForm" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Ошибки формы -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Ошибки формы:
+                            </h6>
+                            <ul class="mb-0">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Поле заголовка -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">
+                                <i class="fas fa-heading me-1 text-primary"></i>
+                                Заголовок новости *
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.title.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Придумайте яркий и информативный заголовок для вашей новости
+                            </div>
+                        </div>
+
+                        <!-- Поле содержания -->
+                        <div class="mb-4">
+                            <label for="{{ form.content.id_for_label }}" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-1 text-primary"></i>
+                                Содержание новости *
+                            </label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.content.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Напишите полный текст новости. Минимальная длина - 50 символов
+                            </div>
+                        </div>
+
+                        <!-- Поле категорий -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tags me-1 text-primary"></i>
+                                Категории *
+                            </label>
+                            <div class="border rounded p-3 bg-light">
+                                <div class="row">
+                                    {% for checkbox in form.categories %}
+                                    <div class="col-md-6 col-lg-4 mb-2">
+                                        <div class="form-check">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                                <i class="fas fa-folder me-1 text-muted"></i>
+                                                {{ checkbox.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if form.categories.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.categories.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <i class="fas fa-bell me-1 text-warning"></i>
+                                Уведомления будут отправлены всем подписчикам выбранных категорий
+                            </div>
+                        </div>
+
+                        <!-- Информация о подписчиках -->
+                        <div class="mb-4">
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-users me-1"></i>
+                                    Информация о подписчиках
+                                </h6>
+                                <div id="subscribersInfo">
+                                    <p class="mb-2">Выберите категории, чтобы увидеть количество подписчиков</p>
+                                    <div id="selectedCategories" class="d-flex flex-wrap gap-2 mt-2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки действий -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                            <a href="{% url 'news_list' %}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4" id="submitBtn"
+                                    {% if news_count_today >= 3 %}disabled{% endif %}>
+                                <i class="fas fa-paper-plane me-1"></i>
+                                Опубликовать новость
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Футер карточки -->
+                <div class="card-footer bg-light py-3">
+                    <div class="row text-muted">
+                        <div class="col-md-6">
+                            <small>
+                                <i class="fas fa-user me-1"></i>
+                                Автор: {{ user.username }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small>
+                                <i class="fas fa-clock me-1"></i>
+                                {{ current_date }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+
+    .badge-subscriber {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('newsForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const categoryCheckboxes = document.querySelectorAll('input[name="categories"]');
+    const selectedCategoriesDiv = document.getElementById('selectedCategories');
+
+    // Данные о подписчиках (можно заменить на динамическую загрузку)
+    const subscribersData = {
+        {% for category in categories %}
+        {{ category.id }}: {
+            name: "{{ category.name }}",
+            subscribers: {{ category.subscribers.count|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Обновление информации о подписчиках
+    function updateSubscribersInfo() {
+        const selectedCategories = Array.from(categoryCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => parseInt(checkbox.value));
+
+        selectedCategoriesDiv.innerHTML = '';
+
+        if (selectedCategories.length === 0) {
+            selectedCategoriesDiv.innerHTML = '<p class="text-muted mb-0">Категории не выбраны</p>';
+            return;
+        }
+
+        let totalSubscribers = 0;
+
+        selectedCategories.forEach(categoryId => {
+            const category = subscribersData[categoryId];
+            if (category) {
+                totalSubscribers += category.subscribers;
+
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary me-2 mb-2';
+                badge.innerHTML = `
+                    <i class="fas fa-tag me-1"></i>
+                    ${category.name}:
+                    <span class="badge bg-light text-dark ms-1">${category.subscribers} подписчиков</span>
+                `;
+                selectedCategoriesDiv.appendChild(badge);
+            }
+        });
+
+        // Добавляем общее количество
+        const totalBadge = document.createElement('div');
+        totalBadge.className = 'w-100 mt-2';
+        totalBadge.innerHTML = `
+            <strong>Всего подписчиков для уведомлений:</strong>
+            <span class="badge badge-subscriber ms-2">${totalSubscribers}</span>
+        `;
+        selectedCategoriesDiv.appendChild(totalBadge);
+    }
+
+    // Слушатели событий для чекбоксов категорий
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSubscribersInfo);
+    });
+
+    // Валидация формы
+    form.addEventListener('submit', function(e) {
+        const title = document.getElementById('{{ form.title.id_for_label }}').value.trim();
+        const content = document.getElementById('{{ form.content.id_for_label }}').value.trim();
+        const selectedCategories = Array.from(categoryCheckboxes).filter(cb => cb.checked).length;
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Проверка заголовка
+        if (title.length < 5) {
+            isValid = false;
+            errorMessage = 'Заголовок должен содержать минимум 5 символов';
+        }
+        // Проверка содержания
+        else if (content.length < 50) {
+            isValid = false;
+            errorMessage = 'Содержание новости должно быть не менее 50 символов';
+        }
+        // Проверка категорий
+        else if (selectedCategories === 0) {
+            isValid = false;
+            errorMessage = 'Выберите хотя бы одну категорию';
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Ошибка: ' + errorMessage);
+            return false;
+        }
+
+        // Блокировка кнопки отправки
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Публикация...';
+        }
+
+        return true;
+    });
+
+    // Счетчик символов для заголовка
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    if (titleField) {
+        const titleCounter = document.createElement('div');
+        titleCounter.className = 'form-text text-end';
+        titleField.parentNode.appendChild(titleCounter);
+
+        titleField.addEventListener('input', function() {
+            const length = this.value.length;
+            titleCounter.textContent = `${length} символов`;
+            titleCounter.className = `form-text text-end ${length < 5 ? 'text-danger' : 'text-success'}`;
+        });
+    }
+
+    // Счетчик символов для содержания
+    const contentField = document.getElementById('{{ form.content.id_for_label }}');
+    if (contentField) {
+        const contentCounter = document.createElement('div');
+        contentCounter.className = 'form-text text-end';
+        contentField.parentNode.appendChild(contentCounter);
+
+        contentField.addEventListener('input', function() {
+            const length = this.value.length;
+            contentCounter.textContent = `${length} символов`;
+            contentCounter.className = `form-text text-end ${
+                length < 50 ? 'text-danger' :
+                length < 100 ? 'text-warning' : 'text-success'
+            }`;
+        });
+    }
+
+    // Инициализация информации о подписчиках
+    updateSubscribersInfo();
+
+    // Предупреждение при закрытии страницы с несохраненными данными
+    let formChanged = false;
+
+    form.addEventListener('change', function() {
+        formChanged = true;
+    });
+
+    form.addEventListener('submit', function() {
+        formChanged = false;
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = 'У вас есть несохраненные изменения. Вы уверены, что хотите покинуть страницу?';
+        }
+    });
+});
+</script>
+{% endblock %}

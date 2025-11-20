@@ -1,0 +1,45 @@
+{% extends "account/base.html" %}
+
+{% block head_title %}Вход в систему{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Вход в систему</h1>
+
+{% if socialaccount.providers %}
+<div class="socialaccount_ballot">
+    <a href="{% provider_login_url 'google' %}" class="btn btn-google">
+        Войти через Google
+    </a>
+    
+    <div style="text-align: center; margin: 1rem 0; color: #7f8c8d;">
+        или
+    </div>
+</div>
+{% endif %}
+
+<form class="login" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="id_login">Email:</label>
+        <input type="email" name="login" placeholder="Ваш email" autocomplete="email" required id="id_login" class="form-control">
+    </div>
+    
+    <div class="form-group">
+        <label for="id_password">Пароль:</label>
+        <input type="password" name="password" placeholder="Пароль" autocomplete="current-password" required id="id_password" class="form-control">
+    </div>
+    
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    
+    <button class="btn btn-primary" type="submit" style="width: 100%;">Войти</button>
+</form>
+
+<div style="text-align: center; margin-top: 1rem;">
+    <a href="{% url 'account_reset_password' %}">Забыли пароль?</a>
+    <span style="margin: 0 0.5rem;">•</span>
+    <a href="{% url 'account_signup' %}">Регистрация</a>
+</div>
+{% endblock %}
